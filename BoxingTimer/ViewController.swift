@@ -9,6 +9,17 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    // MARK: - IBOutlets
+    
+    @IBOutlet weak var pickerView: UIPickerView!
+    @IBOutlet weak var orangeStack: UIStackView!
+    
+    @IBOutlet weak var firstTextField: UITextField!
+    @IBOutlet weak var secondTextField: UITextField!
+    @IBOutlet weak var thirdTextField: UITextField!
+    
+    // MARK: - Properties
+    
     var roundsValueArray = ["1 раунд", "2 раунда", "3 раунда", "4 раунда", "5 раундов", "6 раундов", "7 раундов", "8 раундов", "9 раундов", "10 раундов", "11 раундов", "12 раундов", "13 раундов", "14 раундов", "15 раундов", "16 раундов"]
     var roundsTimeArray = [15, 30, 45, 60, 90, 5, 150, 180, 210, 240, 270, 300, 330, 360]
     var relaxationTimeArray = [15, 30, 45, 60, 90, 120, 150, 180]
@@ -16,7 +27,8 @@ class ViewController: UIViewController {
     var _selectedRoundsValue:Int? = 5
     var _selectedRelaxionTime:Int? = 3
     var _selectedRoundsTime:Int? = 5
-    var _selectedRelaxionValue: Int?
+    
+    var timer: Timer? = nil
     
     var selectedRelaxionTime:Int?{
         get{
@@ -27,7 +39,6 @@ class ViewController: UIViewController {
             didselectedRelaxionTime_changed()
         }
     }
-    
     var selectedRoundsTime:Int?{
         get{
             return _selectedRoundsTime
@@ -37,17 +48,25 @@ class ViewController: UIViewController {
             didselectedRoundsTime_changed()
         }
     }
-    
     var selectedRoundsValue:Int?{
         get{
             return _selectedRoundsValue
         }
         set{
             _selectedRoundsValue = newValue
-            _selectedRelaxionValue = newValue! + 1
             didselectedRoundsValue_changed()
         }
     }
+    
+    //MARK: - Lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupPickerView()
+        setupOrangeStack(boolForStack: true)
+    }
+    
+    //MARK: - Methods
     
     func didselectedRelaxionTime_changed(){
         thirdTextField.text = "Отдых \(selectedRelaxionTime!) секунд"
@@ -56,26 +75,14 @@ class ViewController: UIViewController {
     func didselectedRoundsTime_changed() {
         secondTextField.text = "Время раунда \(selectedRoundsTime!) секунд"
     }
+    
     func didselectedRoundsValue_changed() {
         firstTextField.text = "\(selectedRoundsValue!) раундов"
     }
     
-    
-    
-    var timer: Timer? = nil
-    
-    @IBOutlet weak var pickerView: UIPickerView!
-    @IBOutlet weak var orangeStack: UIStackView!
-    
-    
-    @IBOutlet weak var firstTextField: UITextField!
-    @IBOutlet weak var secondTextField: UITextField!
-    @IBOutlet weak var thirdTextField: UITextField!
-    
     func createTimer(){
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateFirstTextView), userInfo: nil, repeats: true)
     }
-    
     
     @objc func updateFirstTextView(){
         if let firstTextFieldText = firstTextField.text {
@@ -89,31 +96,29 @@ class ViewController: UIViewController {
         }
     }
     
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    func setupPickerView(){
         pickerView.delegate = self
         pickerView.dataSource = self
-        orangeStack.isHidden = true
         pickerView.selectRow(_selectedRelaxionTime!, inComponent: 0, animated: false)
         pickerView.selectRow(_selectedRoundsTime!, inComponent: 1, animated: false)
         pickerView.selectRow(_selectedRoundsValue!, inComponent: 2, animated: false)
-        
-        
-        
-        
-        
     }
     
+    func setupOrangeStack(boolForStack: Bool){
+        orangeStack.isHidden = boolForStack
+    }
+    
+    //MARK: - IBActions
     
     @IBAction func startButton(_ sender: Any) {
         orangeStack.backgroundColor = UIColor.orange
-        orangeStack.isHidden = false
+        setupOrangeStack(boolForStack: false)
         createTimer()
     }
     
 }
 
+//MARK: - Picker View Data Sourse, Picker View Delegate
 
 extension ViewController:UIPickerViewDataSource, UIPickerViewDelegate{
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
